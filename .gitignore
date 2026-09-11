@@ -8,3 +8,19 @@ COPILOT.md
 .aider*
 .windsurfrules
 .github/copilot-instructions.md
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Weights and calibration data are too big for git and never belong in it.
+*.safetensors
+*.gguf
+*.bin
+*.pt

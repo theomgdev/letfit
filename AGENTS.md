@@ -218,10 +218,23 @@ per vendor has already lost the thing they were meant to protect.
 
 ## Project specifics
 
-Replace this section with what is true of your project: how to build it, how to
-run its tests, the conventions a newcomer would violate by accident, and
-anything about it that would surprise a careful reader. Delete the section
-rather than leave it empty.
+LetFit is a quantization toolkit for large language models, shipping as a Python
+library with a CLI. There is no implementation yet, so there is no build and no
+test command; add them here when they exist rather than describing what they
+will be.
+
+Quantization work fails in a way this repository has to guard against
+specifically: a method that loads, runs, and produces fluent output can still
+have lost the accuracy it was supposed to preserve, and no test catches that. A
+number for a method is a number you measured, on a named model, with a named
+evaluation, at a named bit width. If you did not run it, say the method is
+unevaluated. Never carry a figure over from a paper's table and present it as
+this tool's result.
+
+The reference implementations these methods come with are usually written for
+one model family and one runtime. Read them before writing a second mechanism,
+and expect their edge cases — grouping, outlier handling, layers deliberately
+left at higher precision — to be the part that matters.
 
 ## Is this working?
 
