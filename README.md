@@ -14,10 +14,31 @@ stop there. LetFit is the attempt to keep the good ones in one toolkit, under
 one API, with the same evaluation applied to all of them so a comparison means
 something.
 
-[Unsloth](https://github.com/unslothai/unsloth) is the project that proved this
-is worth doing and the reason this repository exists at all. Their dynamic
-quantization work — deciding per-layer what each tensor can tolerate rather than
-applying one bit width everywhere — is the direction being followed here.
+The target is the hard end of that: one to two bits per weight, with the
+accuracy loss small enough that the model is still worth serving, and with
+enough parallelism in the kernels that the saved bandwidth comes back as speed.
+
+## Inspirations
+
+[Unsloth](https://github.com/unslothai/unsloth) is the reason this repository
+exists at all. Their dynamic quantization decides per-layer what each tensor can
+tolerate instead of applying one bit width everywhere, which is the idea the
+whole sub-4-bit regime rests on.
+
+[Prism ML's Bonsai](https://huggingface.co/prism-ml/Ternary-Bonsai-27B-gguf) is
+the proof that the hard end is reachable. Ternary Bonsai 27B puts `{−1, 0, +1}`
+weights across embeddings, attention, MLP and the LM head at 1.71 bits per
+weight with no high-precision escape hatches, and reports 94.6% of the FP16
+benchmark average — while the conventional 2-bit builds it is measured against
+sit at a true 2.8 bits and lose fifteen points. Their result also says something
+about how to evaluate: the conventional builds hold up on MMLU and collapse on
+AIME and LiveCodeBench, so a benchmark that never asks for a long chain of
+reasoning will not notice the damage.
+
+[llama.cpp](https://github.com/ggml-org/llama.cpp) is where quantized models
+actually get run, and it set the expectation that a quantized model is a single
+file you point a binary at. Anything LetFit produces has to be servable that
+way; a format nobody can load is a format that does not exist.
 
 ## Status
 
@@ -32,12 +53,17 @@ PyPI yet, so there is nothing to install.
 
 ## Scope
 
-Quantization, and what it takes to know whether a quantization worked. That
-means the weight formats and the calibration that produces them, the accuracy
-measurement that tells you what a given configuration cost you, and export to
-the runtimes people actually serve with. It does not mean training, serving, or
-being a general model toolkit — those exist and are better than anything added
-here in passing.
+Quantization, what it takes to know whether a quantization worked, and getting
+the result onto a runtime without the user doing the work. That means the weight
+formats and the calibration that produces them, the accuracy measurement that
+tells you what a given configuration actually cost, and export to something that
+serves — GGUF for llama.cpp first, since that is where the audience already is.
+A quantized model the user then has to hand-port is only half a result.
+
+It does not mean training or being a general model toolkit. Where serving needs
+more than weights — KV cache quantization, speculative decoding — the question
+is whether it is what makes the low-bit model usable, not whether it is
+interesting.
 
 ## Contributing
 
